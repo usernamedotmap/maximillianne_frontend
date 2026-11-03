@@ -399,7 +399,7 @@ const HomePage = () => {
                                     Max Guests
                                 </span>
                                 <span className="font-semibold text-foreground text-right">
-                                    6 guests maximum
+                                    4 guests maximum
                                 </span>
                             </div>
 

@@ -1,5 +1,4 @@
-import { useParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toaster";
@@ -115,7 +114,12 @@ export default function BookingStatusPage() {
           <p className="break-all text-xs text-muted-foreground">
             Reference ID: <span className="font-mono">{booking.id}</span>
           </p>
-          <Button type="button" variant="outline" size="sm" onClick={copyReference}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={copyReference}
+          >
             <Copy className="mr-2 size-4" />
             Copy reference ID
           </Button>
