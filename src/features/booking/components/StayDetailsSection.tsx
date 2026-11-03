@@ -26,7 +26,7 @@ export function StayDetailsSection({
           aria-invalid={Boolean(errors.booking?.guestCount)}
           {...register("booking.guestCount")}
         >
-          {[1, 2, 3, 4, 5, 6].map((count) => (
+          {[1, 2, 3, 4].map((count) => (
             <option key={count} value={count}>
               {count} {count === 1 ? "guest" : "guests"}
             </option>
