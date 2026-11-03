@@ -4,6 +4,7 @@ import type {
   BookingPaymentDetails,
   CreateBookingInput,
 } from "../types/booking.types";
+import { saveLastBookingTrackingReference } from "../utils/bookingTracking";
 
 export const useGetCalendar = (month: string, propertyId = 1) => {
   return useQuery({
@@ -16,10 +17,12 @@ export const useCreateBooking = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateBookingInput) => bookingService.createBooking(input),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
+    onSuccess: async (response) => {
+      saveLastBookingTrackingReference(response.bookings.trackingReference);
+      await queryClient.invalidateQueries({
         queryKey: ["calendar"],
-      })
+      });
+    },
   });
 };
 
@@ -50,3 +53,13 @@ export const useUploadPaymentProof = (bookingId: string) => {
     },
   });
 };
+
+export const useGetPublicBookingStatus = (trackingReference: string) =>
+  useQuery({
+    queryKey: ["public-booking-status", trackingReference],
+    queryFn: () => bookingService.getPublicBookingStatus(trackingReference),
+    enabled: Boolean(trackingReference),
+    retry: false,
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
+  });

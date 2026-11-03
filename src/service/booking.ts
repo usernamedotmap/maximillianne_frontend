@@ -3,6 +3,7 @@ import type {
   BookingResponse,
   CreateBookingInput,
   PaymentProofResponse,
+  PublicBookingStatusResponse,
 } from "@/features/booking/types/booking.types";
 import type { CalendarResponse } from "@/features/booking/types/calendar.types";
 import { api } from "@/lib/axios";
@@ -23,6 +24,13 @@ export const bookingService = {
   getBookingPaymentDetails: async (bookingId: string) => {
     const response = await api.get<BookingPaymentDetailsResponse>(
       `/bookings/${encodeURIComponent(bookingId)}`,
+    );
+    return response.data.booking;
+  },
+
+  getPublicBookingStatus: async (trackingReference: string) => {
+    const response = await api.get<PublicBookingStatusResponse>(
+      `/bookings/${encodeURIComponent(trackingReference)}/status`,
     );
     return response.data.booking;
   },

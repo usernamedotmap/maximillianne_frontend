@@ -71,6 +71,7 @@ export default function BookingPaymentPage() {
       return;
     }
 
+    const trackingReference = booking.trackingReference;
     setFileError("");
     try {
       const response = await uploadProof.mutateAsync(file);
@@ -81,6 +82,7 @@ export default function BookingPaymentPage() {
         description: response.message,
         variant: "success",
       });
+      navigate(`/booking/status/${encodeURIComponent(trackingReference)}`);
     } catch (uploadError: unknown) {
       const message =
         uploadError instanceof ApiError
@@ -98,7 +100,7 @@ export default function BookingPaymentPage() {
   const copyReference = async () => {
     if (!booking) return;
     try {
-      await navigator.clipboard.writeText(booking.bookingId);
+      await navigator.clipboard.writeText(booking.trackingReference);
       showToast({
         title: "Reference copied",
         description: "Save this ID to return to your booking status.",
@@ -171,7 +173,7 @@ export default function BookingPaymentPage() {
             Booking reference ID
           </p>
           <p className="mt-1 break-all font-mono text-sm font-semibold">
-            {booking.bookingId}
+            {booking.trackingReference}
           </p>
         </div>
 
@@ -292,22 +294,24 @@ export default function BookingPaymentPage() {
         BOOKING REFERENCE
       </p>
       <div className="flex items-center justify-between gap-2">
-        <code className="text-xs break-all">
-          84cb4188-a365-4df4-9ef4-a859a0bd39f8
-        </code>
+        <code className="text-xs break-all">{booking.trackingReference}</code>
         <button
           type="button"
-          onClick={() =>
-            navigator.clipboard.writeText(
-              "84cb4188-a365-4df4-9ef4-a859a0bd39f8"
-            )
-          }
+          onClick={copyReference}
           className="text-xs font-semibold text-primary hover:opacity-70"
         >
           Copy
         </button>
       </div>
     </div>
+    <Button
+      type="button"
+      onClick={() =>
+        navigate(`/booking/status/${encodeURIComponent(booking.trackingReference)}`)
+      }
+    >
+      View live booking status
+    </Button>
 
     {/* Support */}
     <div className="space-y-3">

@@ -1,8 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, Mail, MapPin, Menu, ShieldCheck, X, ThumbsUp, Camera } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Calendar, Mail, MapPin, Menu, Search, ShieldCheck, X, ThumbsUp, Camera } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import Logo from "@/assets/logo.png"
+import {
+  BOOKING_TRACKING_UPDATED_EVENT,
+  clearLastBookingTrackingReference,
+  readLastBookingTrackingReference,
+} from "@/features/booking/utils/bookingTracking";
+
+const isTrackingReference = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 
 const scrollToPublicSection = (hash: string) => {
   const section = document.getElementById(hash.slice(1));
@@ -23,9 +40,33 @@ const scrollToPublicSection = (hash: string) => {
 
 const PublicLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [trackBookingOpen, setTrackBookingOpen] = useState(false);
+  const [trackingReferenceInput, setTrackingReferenceInput] = useState("");
+  const [trackingError, setTrackingError] = useState("");
+  const [lastBookingReference, setLastBookingReference] = useState(
+    readLastBookingTrackingReference,
+  );
   const navigate = useNavigate();
   const location = useLocation();
   const previousPathname = useRef(location.pathname);
+
+  useEffect(() => {
+    const refreshTrackingReference = () =>
+      setLastBookingReference(readLastBookingTrackingReference());
+
+    window.addEventListener(
+      BOOKING_TRACKING_UPDATED_EVENT,
+      refreshTrackingReference,
+    );
+    window.addEventListener("storage", refreshTrackingReference);
+    return () => {
+      window.removeEventListener(
+        BOOKING_TRACKING_UPDATED_EVENT,
+        refreshTrackingReference,
+      );
+      window.removeEventListener("storage", refreshTrackingReference);
+    };
+  }, []);
 
   useEffect(() => {
     const pathnameChanged = previousPathname.current !== location.pathname;
@@ -56,8 +97,73 @@ const PublicLayout = () => {
       navigate(hasOrPath);
     }
   }
+
+  const submitTrackingReference = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const reference = trackingReferenceInput.trim();
+    if (!isTrackingReference(reference)) {
+      setTrackingError("Enter a valid booking reference ID.");
+      return;
+    }
+
+    setTrackingError("");
+    setTrackBookingOpen(false);
+    setTrackingReferenceInput("");
+    navigate(`/booking/status/${encodeURIComponent(reference)}`);
+  };
+
   return (
     <div className='min-h-screen flex flex-col bg-background text-foreground antialiased selection:bg-primary/20'>
+      <Dialog
+        open={trackBookingOpen}
+        onOpenChange={(open) => {
+          setTrackBookingOpen(open);
+          if (open) setTrackingError("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Check reservation status</DialogTitle>
+            <DialogDescription>
+              Enter the reference ID from your booking confirmation.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitTrackingReference} className="space-y-4">
+            <label htmlFor="booking-tracking-reference" className="block space-y-2">
+              <span className="text-sm font-medium">Reference ID</span>
+              <input
+                id="booking-tracking-reference"
+                autoComplete="off"
+                autoFocus
+                value={trackingReferenceInput}
+                onChange={(event) => {
+                  setTrackingReferenceInput(event.target.value);
+                  setTrackingError("");
+                }}
+                placeholder="e.g. 84cb4188-a365-4df4-9ef4-a859a0bd39f8"
+                aria-invalid={Boolean(trackingError)}
+                aria-describedby={
+                  trackingError ? "booking-reference-error" : undefined
+                }
+                className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50"
+              />
+            </label>
+            {trackingError && (
+              <p
+                id="booking-reference-error"
+                className="text-sm text-destructive"
+                role="alert"
+              >
+                {trackingError}
+              </p>
+            )}
+            <Button type="submit" className="w-full">
+              <Search className="mr-2 size-4" />
+              Search booking
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* top navbard */}
       <header data-public-header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-md transition-all">
@@ -98,6 +204,15 @@ const PublicLayout = () => {
 
           {/* right CTA */}
           <div className="hidden sm:flex items-center gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setTrackBookingOpen(true)}
+              className="text-xs sm:text-sm"
+            >
+              <Search className="mr-1.5 size-4" />
+              Track Booking
+            </Button>
             <a
               href="https://www.facebook.com/maximillianeshaven"
               className="hidden lg:flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -150,6 +265,17 @@ const PublicLayout = () => {
             </button>
             <div className="pt-2 border-t border-border flex flex-col gap-2">
               <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setTrackBookingOpen(true);
+                }}
+              >
+                <Search className="mr-2 size-4" />
+                Track Booking
+              </Button>
+              <Button
                 onClick={() => { setMobileMenuOpen(false); navigate("/availability") }}>
                 Check Availability
               </Button>
@@ -165,6 +291,40 @@ const PublicLayout = () => {
       </header>
 
       <main className="flex-1">
+        {location.pathname === "/" && lastBookingReference && (
+          <div className="container-page pt-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
+              <div>
+                <p className="text-sm font-semibold">Have a booking in progress?</p>
+                <p className="text-xs text-muted-foreground">
+                  Saved reference: {lastBookingReference.slice(0, 8)}…
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() =>
+                    navigate(
+                      `/booking/status/${encodeURIComponent(lastBookingReference)}`,
+                    )
+                  }
+                >
+                  View booking
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={clearLastBookingTrackingReference}
+                  aria-label="Dismiss saved booking"
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         <Outlet />
       </main>
 
@@ -229,6 +389,15 @@ const PublicLayout = () => {
                 <li>
                   <Link to="/availability" className="hover:text-white transition-colors">
                     Check Availability Calendar</Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setTrackBookingOpen(true)}
+                    className="hover:text-white transition-colors"
+                  >
+                    Track Booking
+                  </button>
                 </li>
                 <li>
                   <button

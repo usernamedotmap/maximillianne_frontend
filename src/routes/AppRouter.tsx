@@ -12,6 +12,7 @@ import BookingDetailsPage from "@/features/admin/pages/BookingDetailsPage";
 import AdminBookingsPage from "@/features/admin/pages/AdminBookingsPage";
 import AdminCalendarPage from "@/features/admin/pages/AdminCalendarPage";
 import RouteMeta from "@/components/RouteMeta";
+import BookingStatusPage from "@/features/booking/pages/BookingStatusPage";
 
 
 export function AppRoutes() {
@@ -23,6 +24,7 @@ export function AppRoutes() {
                     <Route path="/" element={<HomePage />} />
                     <Route path="/availability" element={<AvailabilityPage />} />
                     <Route path="/booking/request" element={<BookingRequestPage />} />
+                    <Route path="/booking/status/:id" element={<BookingStatusPage />} />
                     <Route path="/booking/:id" element={<BookingPaymentPage />} />
                     <Route
                         path="/booking/:id/payment"

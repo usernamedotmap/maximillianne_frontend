@@ -22,6 +22,7 @@ export type CreateBookingInput = {
 
 export type BookingCreated = {
     bookingId: string;
+    trackingReference: string;
     status: string;
     checkIn: string;
     checkOut: string;
@@ -48,6 +49,7 @@ export type BookingResponse = {
 
 export type BookingPaymentDetails = {
     bookingId: string;
+    trackingReference: string;
     status: string;
     checkIn: string;
     checkOut: string;
@@ -67,18 +69,18 @@ export type BookingPaymentDetailsResponse = {
 
 export type PaymentProofResponse = {
     message: string;
-    payment: {
-        id: string;
-        bookingId: string;
-        type: string;
-        amount: number | string;
-        proofFileKey: string | null;
-        verified: boolean;
-        createdAt: string;
-    };
-    booking: {
-        id: string;
-        status: string;
-        totalAmount: number | string;
-    };
 }
+
+export type PublicBookingStatus = {
+    id: string;
+    checkIn: string;
+    checkOut: string;
+    status: "pending" | "approved" | "rejected" | "cancelled" | "expired";
+    guestName: string;
+    paymentStatus: "not_submitted" | "pending_verification" | "verified";
+};
+
+export type PublicBookingStatusResponse = {
+    message: string;
+    booking: PublicBookingStatus;
+};

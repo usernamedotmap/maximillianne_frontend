@@ -40,6 +40,14 @@ const routeMetadata: { matches: (pathname: string) => boolean; metadata: RouteMe
     },
   },
   {
+    matches: (pathname) => /^\/booking\/status\/[^/]+$/.test(pathname),
+    metadata: {
+      title: "Booking Status | Maximilliane's Haven",
+      description: "Check the latest status of your Maximilliane's Haven booking.",
+      noIndex: true,
+    },
+  },
+  {
     matches: (pathname) => /^\/booking\/[^/]+$/.test(pathname),
     metadata: {
       title: "Booking Payment | Maximilliane's Haven",
