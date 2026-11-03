@@ -445,7 +445,7 @@ const HomePage = () => {
             <section id="direct-booking" className='container-page'>
                 <div className='bg-inverse text-inverse-foreground rounded-2xl p-8 sm:p-12 text-center space-y-4 shadow-lg border border-inverse-muted/20'>
                     <h2 className='text-2xl sm:text-3xl lg:text-4xl font-serif font-bold'>
-                        Planning you stay?
+                        Planning your stay?
                     </h2>
                     <p className='text-xs sm:text-sm text-inverse-muted max-w-xl mx-auto leading-relaxed'>Check availability calendar and lock in your preferred reservation dates before they fill
                         up.
