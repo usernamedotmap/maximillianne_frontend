@@ -1,6 +1,6 @@
 
 
-import { BookmarkCheck, Calendar, ExternalLink, LayoutDashboard, LogOut, Users } from 'lucide-react';
+import { BookmarkCheck, Calendar, ExternalLink, LayoutDashboard, LogOut } from 'lucide-react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import Logo from "@/assets/logo.png";
 import { Button } from '@/components/ui/button';

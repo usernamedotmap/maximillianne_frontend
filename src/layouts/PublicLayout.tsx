@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, Mail, MapPin, Menu, Phone, ShieldCheck, X, ThumbsUp, Camera } from "lucide-react";
+import { Calendar, Mail, MapPin, Menu, ShieldCheck, X, ThumbsUp, Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import Logo from "@/assets/logo.png"
